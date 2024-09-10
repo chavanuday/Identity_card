@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: grid;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #previewContainer {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        #idCard {
+            width: 350px;
+            height: 200px;
+            border: 1px solid #000;
+            margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            background-color: #f9f9f9;
+        }
+        #idCard img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 1px solid #000;
+        }
+        #idCard h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        #idCard p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ID Card Generator</h1>
+        <form id="idForm">
+            <label for="photo">Photo:</label>
+            <input type="file" id="photo" accept="image/*" required>
+            
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+            
+            <label for="class">Class:</label>
+            <input type="text" id="class" required>
+            
+            <label for="school">School Name:</label>
+            <input type="text" id="school" required>
+            
+            <label for="age">Age:</label>
+            <input type="number" id="age" required>
+            
+            <label for="city">City:</label>
+            <input type="text" id="city" required>
+            
+            <button type="submit">Generate ID Card</button>
+        </form>
+        
+        <div id="previewContainer" style="display:none;">
+            <h2>Preview:</h2>
+            <div id="idCard">
+                <img id="previewPhoto" src="/api/placeholder/80/80" alt="Student Photo">
+                <h2 id="previewName"></h2>
+                <p>Class: <span id="previewClass"></span></p>
+                <p>School: <span id="previewSchool"></span></p>
+                <p>Age: <span id="previewAge"></span></p>
+                <p>City: <span id="previewCity"></span></p>
+            </div>
+            <button id="downloadBtn" style="margin-top: 10px;">Download ID Card</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('idForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateIDCard();
+        });
+
+        function generateIDCard() {
+            const name = document.getElementById('name').value;
+            const className = document.getElementById('class').value;
+            const school = document.getElementById('school').value;
+            const age = document.getElementById('age').value;
+            const city = document.getElementById('city').value;
+            const photoInput = document.getElementById('photo');
+
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewClass').textContent = className;
+            document.getElementById('previewSchool').textContent = school;
+            document.getElementById('previewAge').textContent = age;
+            document.getElementById('previewCity').textContent = city;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewPhoto').src = e.target.result;
+            }
+            reader.readAsDataURL(photoInput.files[0]);
+
+            document.getElementById('previewContainer').style.display = 'block';
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const element = document.getElementById('idCard');
+            html2pdf().from(element).save('id_card.pdf');
+        });
+    </script>
+</body>
+</html>
