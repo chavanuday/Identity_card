@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ID Card Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -136,7 +136,7 @@
                 <p><span class="label">Age:</span> <span id="previewAge"></span></p>
                 <p><span class="label">City:</span> <span id="previewCity"></span></p>
             </div>
-            <button id="downloadBtn" style="margin-top: 10px;">Download ID Card</button>
+            <button id="downloadBtn" style="margin-top: 10px;">Download ID Card as PNG</button>
         </div>
     </div>
 
@@ -156,7 +156,7 @@
 
             if (downloadBtn) {
                 downloadBtn.addEventListener('click', function() {
-                    generatePDF();
+                    generatePNG();
                 });
             } else {
                 console.error('Download button not found');
@@ -184,17 +184,19 @@
                 reader.readAsDataURL(photoInput.files[0]);
             }
 
-            function generatePDF() {
+            function generatePNG() {
                 const element = document.getElementById('idCard');
-                const opt = {
-                    margin: 10,
-                    filename: 'id_card.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, logging: true, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-                };
-
-                html2pdf().from(element).set(opt).save().catch(err => console.error('Error generating PDF:', err));
+                html2canvas(element, {
+                    scale: 2,
+                    logging: true,
+                    useCORS: true
+                }).then(canvas => {
+                    const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                    const link = document.createElement('a');
+                    link.download = 'id_card.png';
+                    link.href = image;
+                    link.click();
+                }).catch(err => console.error('Error generating PNG:', err));
             }
         });
     </script>
