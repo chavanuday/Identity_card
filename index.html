@@ -56,30 +56,48 @@
         }
         #idCard {
             width: 350px;
-            height: 200px;
-            border: 1px solid #000;
+            height: 220px;
+            border: 2px solid #000;
             margin: 0 auto;
             padding: 10px;
             box-sizing: border-box;
             position: relative;
             background-color: #f9f9f9;
+            overflow: hidden;
+        }
+        #idCard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background-color: #4CAF50;
         }
         #idCard img {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
             position: absolute;
-            top: 10px;
+            top: 50px;
             right: 10px;
-            border: 1px solid #000;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
         }
         #idCard h2 {
             margin: 0;
-            font-size: 18px;
+            padding-top: 50px;
+            font-size: 20px;
+            color: #333;
         }
         #idCard p {
             margin: 5px 0;
             font-size: 14px;
+            color: #666;
+        }
+        #idCard .label {
+            font-weight: bold;
+            color: #4CAF50;
         }
     </style>
 </head>
@@ -111,12 +129,12 @@
         <div id="previewContainer" style="display:none;">
             <h2>Preview:</h2>
             <div id="idCard">
-                <img id="previewPhoto" src="/api/placeholder/80/80" alt="Student Photo">
+                <img id="previewPhoto" src="/api/placeholder/100/100" alt="Student Photo">
                 <h2 id="previewName"></h2>
-                <p>Class: <span id="previewClass"></span></p>
-                <p>School: <span id="previewSchool"></span></p>
-                <p>Age: <span id="previewAge"></span></p>
-                <p>City: <span id="previewCity"></span></p>
+                <p><span class="label">Class:</span> <span id="previewClass"></span></p>
+                <p><span class="label">School:</span> <span id="previewSchool"></span></p>
+                <p><span class="label">Age:</span> <span id="previewAge"></span></p>
+                <p><span class="label">City:</span> <span id="previewCity"></span></p>
             </div>
             <button id="downloadBtn" style="margin-top: 10px;">Download ID Card</button>
         </div>
@@ -153,7 +171,27 @@
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
             const element = document.getElementById('idCard');
-            html2pdf().from(element).save('id_card.pdf');
+            const opt = {
+                margin: 0,
+                filename: 'id_card.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            // Clone the idCard element to avoid modifying the original
+            const clonedElement = element.cloneNode(true);
+            
+            // Set a white background for the PDF
+            clonedElement.style.backgroundColor = 'white';
+            
+            // Temporarily append the cloned element to the body
+            document.body.appendChild(clonedElement);
+
+            html2pdf().from(clonedElement).set(opt).save().then(() => {
+                // Remove the cloned element after PDF generation
+                document.body.removeChild(clonedElement);
+            });
         });
     </script>
 </body>
