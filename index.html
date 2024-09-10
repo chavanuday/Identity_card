@@ -141,57 +141,61 @@
     </div>
 
     <script>
-        document.getElementById('idForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            generateIDCard();
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const idForm = document.getElementById('idForm');
+            const downloadBtn = document.getElementById('downloadBtn');
 
-        function generateIDCard() {
-            const name = document.getElementById('name').value;
-            const className = document.getElementById('class').value;
-            const school = document.getElementById('school').value;
-            const age = document.getElementById('age').value;
-            const city = document.getElementById('city').value;
-            const photoInput = document.getElementById('photo');
-
-            document.getElementById('previewName').textContent = name;
-            document.getElementById('previewClass').textContent = className;
-            document.getElementById('previewSchool').textContent = school;
-            document.getElementById('previewAge').textContent = age;
-            document.getElementById('previewCity').textContent = city;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewPhoto').src = e.target.result;
+            if (idForm) {
+                idForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    generateIDCard();
+                });
+            } else {
+                console.error('Form element not found');
             }
-            reader.readAsDataURL(photoInput.files[0]);
 
-            document.getElementById('previewContainer').style.display = 'block';
-        }
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    generatePDF();
+                });
+            } else {
+                console.error('Download button not found');
+            }
 
-        document.getElementById('downloadBtn').addEventListener('click', function() {
-            const element = document.getElementById('idCard');
-            const opt = {
-                margin: 0,
-                filename: 'id_card.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
+            function generateIDCard() {
+                const name = document.getElementById('name').value;
+                const className = document.getElementById('class').value;
+                const school = document.getElementById('school').value;
+                const age = document.getElementById('age').value;
+                const city = document.getElementById('city').value;
+                const photoInput = document.getElementById('photo');
 
-            // Clone the idCard element to avoid modifying the original
-            const clonedElement = element.cloneNode(true);
-            
-            // Set a white background for the PDF
-            clonedElement.style.backgroundColor = 'white';
-            
-            // Temporarily append the cloned element to the body
-            document.body.appendChild(clonedElement);
+                document.getElementById('previewName').textContent = name;
+                document.getElementById('previewClass').textContent = className;
+                document.getElementById('previewSchool').textContent = school;
+                document.getElementById('previewAge').textContent = age;
+                document.getElementById('previewCity').textContent = city;
 
-            html2pdf().from(clonedElement).set(opt).save().then(() => {
-                // Remove the cloned element after PDF generation
-                document.body.removeChild(clonedElement);
-            });
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewPhoto').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                }
+                reader.readAsDataURL(photoInput.files[0]);
+            }
+
+            function generatePDF() {
+                const element = document.getElementById('idCard');
+                const opt = {
+                    margin: 10,
+                    filename: 'id_card.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, logging: true, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                html2pdf().from(element).set(opt).save().catch(err => console.error('Error generating PDF:', err));
+            }
         });
     </script>
 </body>
